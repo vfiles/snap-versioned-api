@@ -1,11 +1,18 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Snap.API where
+module Snap.API ( requireBody
+                , requireBody'
+                , runAPI
+                , runAPI'
+                , module Snap.API.Utils
+                )
+                 where
 
 --------------------------------------------------------------------------------
 
 import Snap.API.Versions
+import Snap.API.Utils
 
 --------------------------------------------------------------------------------
 

@@ -38,6 +38,9 @@ forbidden = writeError 403
 notFound :: MonadSnap m => ByteString -> m a
 notFound = writeError 404
 
+notFound' :: MonadSnap m => m a
+notFound' = notFound "Not Found"
+
 notAcceptable :: MonadSnap m => ByteString -> m a
 notAcceptable = writeError 406
 
