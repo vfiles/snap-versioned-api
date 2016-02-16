@@ -9,6 +9,8 @@ import Control.Applicative
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 (readInt, readInteger, unpack)
 
+import Data.Readable (Readable, fromBS)
+
 import Data.Monoid
 
 import Data.Text (Text)
@@ -52,49 +54,16 @@ unsupportedMediaType = writeError 415
 -- Params --
 ------------
 
-class Param a where
-    parseParam :: ByteString -> Maybe a
-
-instance Param Integer where
-    parseParam n = readInteger n >>= \case
-                       (m,"") -> Just m
-                       _ -> Nothing
-
-instance Param Int where
-   parseParam n = readInt n >>= \case
-                      (m,"") -> Just m
-                      _ -> Nothing
-
-instance Param ByteString where
-    parseParam = Just
-
-instance Param Bool where
-    parseParam "true" = Just True
-    parseParam "false" = Just False
-    parseParam _ = Nothing
-
-instance Param [Char] where
-    parseParam = Just . unpack
-
--- assumes utf8 encoding
-instance Param Text where
-    parseParam = decodeUtf8' |> \case
-                    Left _ -> Nothing
-                    Right x -> Just x
-        where x |> y = y . x
-
-
-
 -- | Attempts to parse a parameter for a request, short-circuits with
 --   missing parameter error response if unsuccessful, otherwise returns
 --   the parsed parameter.
-requireParam :: (Param p, MonadSnap m)
+requireParam :: (Readable p, MonadSnap m)
              => ByteString       -- ^ The key name of the parameter to parse
              -> m p    -- ^ The parsed parameter returning in the Handler context
 requireParam paramName = do
     mParamBS <- getParam paramName
     case mParamBS of
       Nothing -> badRequest $ "Missing parameter" <> paramName
-      Just paramBS -> case parseParam paramBS of
+      Just paramBS -> case fromBS paramBS of
          Nothing -> badRequest $ "Invalid parameter " <> paramName
          Just p  -> return p
