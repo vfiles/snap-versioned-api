@@ -18,6 +18,7 @@ import Data.Text.Encoding
 
 import Snap
 
+
 writeError :: (MonadSnap m)
            => Int -- ^ The HTTP status code to return
            -> ByteString  -- ^ The error message to return
@@ -70,3 +71,8 @@ requireParam paramName = do
       Just paramBS -> case fromBS paramBS of
          Nothing -> badRequest $ "Invalid parameter " <> paramName
          Just p  -> return p
+
+optionalParam :: (Readable p, MonadSnap m)
+              => ByteString
+              -> m (Maybe p)
+optionalParam paramName = (fromBS =<<) <$> getParam paramName
