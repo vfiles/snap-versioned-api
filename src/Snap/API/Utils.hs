@@ -5,18 +5,25 @@
 module Snap.API.Utils where
 
 import Control.Applicative
+import Control.Monad
 
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 (readInt, readInteger, unpack)
 
-import Data.Readable (Readable, fromBS)
+import Data.Readable (Readable, fromBS, fromText)
 
 import Data.Monoid
 
 import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Text.Encoding
 
+import Data.Time.Clock (UTCTime)
+import Data.Time.Format (parseTime)
+
 import Snap
+
+import System.Locale (defaultTimeLocale)
 
 
 writeError :: (MonadSnap m)
@@ -76,3 +83,9 @@ optionalParam :: (Readable p, MonadSnap m)
               => ByteString
               -> m (Maybe p)
 optionalParam paramName = (fromBS =<<) <$> getParam paramName
+
+instance Readable UTCTime where
+  fromText t = case parseTime defaultTimeLocale format $ T.unpack t of
+    Just x  -> return x
+    Nothing -> mzero
+    where format = "%Y-%m-%dT%H:%M:%S%Q%Z"
