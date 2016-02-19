@@ -21,6 +21,9 @@ import Data.CaseInsensitive
 
 import qualified Data.Map as M
 
+import Data.Maybe
+import Data.Monoid
+
 import Network.HTTP.Media
 
 import Text.Read
@@ -30,16 +33,24 @@ import Snap
 noParams :: MediaType -> MediaType
 noParams media = original (mainType media) // original (subType media)
 
+
+refineAccept :: MediaType -- ^ default
+             -> MediaType -- ^ input
+             -> Maybe MediaType
+refineAccept defaultMedia media
+  | ("application" // "json") `matches` noParams media = Just $ case media /. "version" of
+    Just v -> ("application" // "json") /: ("version", original v)
+    Nothing -> defaultMedia
+  | otherwise = Nothing
+
 getAcceptMedia :: MonadSnap m => Maybe BS.ByteString -> MediaType -> m MediaType
 getAcceptMedia mAcceptHeader defaultMedia = case mAcceptHeader of
   Nothing -> return defaultMedia
-  Just acceptHeader -> case parseAccept acceptHeader of
+  Just acceptHeader -> case sequence $ parseAccept <$> BS.split ',' acceptHeader of
     Nothing -> badRequest "Bad Accept header"
-    Just media -> if ("application" // "json") `matches` noParams media
-                  then return $ case media /. "version" of
-                                  Just v -> ("application" // "json") /: ("version", original v)
-                                  Nothing -> defaultMedia
-                  else notAcceptable "Unsupported media type"
+    Just medias -> case getFirst . mconcat $ First . refineAccept defaultMedia <$> medias of
+      Just media -> return media
+      Nothing -> notAcceptable "Unsupported media type"
 
 getContentType :: MonadSnap m => Maybe BS.ByteString -> MediaType -> m MediaType
 getContentType mContentTypeHeader defaultMedia = case mContentTypeHeader of
