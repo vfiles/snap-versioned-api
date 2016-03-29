@@ -5,6 +5,8 @@ module Snap.API ( requireBody
                 , requireBody'
                 , runAPI
                 , runAPI'
+                , parseBody
+                , parseBody'
                 , module Snap.API.Utils
                 )
                  where
@@ -33,6 +35,9 @@ import Snap
 --   Enforces a maximum body size of 256KiB
 parseBody :: (DeserializedVersion a, MonadSnap m, TraversableFromJSON t) => m (Maybe (t a))
 parseBody = parseBodyOfMax 262144
+
+parseBody' :: (DeserializedVersion a, MonadSnap m) => m a
+parseBody' = runIdentity <$> parseBody
 
 -- | Attempts to parse a JSON structure from a request body
 --   Enforcing a maximum given request size (in bytes)
