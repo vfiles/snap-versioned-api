@@ -19,11 +19,10 @@ import qualified Data.Text as T
 import Data.Text.Encoding
 
 import Data.Time.Clock (UTCTime)
-import Data.Time.Format (parseTime)
+import Data.Time.Format (parseTimeM, defaultTimeLocale)
 
 import Snap
 
-import System.Locale (defaultTimeLocale)
 
 
 writeError :: (MonadSnap m)
@@ -85,7 +84,7 @@ optionalParam :: (Readable p, MonadSnap m)
 optionalParam paramName = (fromBS =<<) <$> getParam paramName
 
 instance Readable UTCTime where
-  fromText t = case parseTime defaultTimeLocale format $ T.unpack t of
+  fromText t = case parseTimeM True defaultTimeLocale format $ T.unpack t of
     Just x  -> return x
     Nothing -> mzero
     where format = "%Y-%m-%dT%H:%M:%S%Q%Z"
