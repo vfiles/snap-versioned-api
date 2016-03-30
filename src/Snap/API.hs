@@ -36,8 +36,8 @@ import Snap
 parseBody :: (DeserializedVersion a, MonadSnap m, TraversableFromJSON t) => m (Maybe (t a))
 parseBody = parseBodyOfMax 262144
 
-parseBody' :: (DeserializedVersion a, MonadSnap m) => m a
-parseBody' = runIdentity <$> parseBody
+parseBody' :: (DeserializedVersion a, MonadSnap m) => m (Maybe a)
+parseBody' = (runIdentity <$>) <$> parseBody
 
 -- | Attempts to parse a JSON structure from a request body
 --   Enforcing a maximum given request size (in bytes)
