@@ -1,0 +1,8 @@
+resolver: nightly-2016-03-23
+
+packages:
+- ./
+- location:
+    git: https://github.com/vfiles/aeson-versioned
+    commit: 3a05ffafef26cf96e627fd64e247726307f9263a
+  extra-dep: true
