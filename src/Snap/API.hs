@@ -1,5 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds #-}
 
 module Snap.API ( requireBody
                 , requireBody'
@@ -7,6 +10,8 @@ module Snap.API ( requireBody
                 , runAPI'
                 , parseBody
                 , parseBody'
+                , EmptyObject(..)
+                , EmptyArray(..)
                 , module Snap.API.Utils
                 )
                  where
@@ -62,8 +67,29 @@ requireBody = parseBody >>= \case Nothing -> do
 requireBody' :: (MonadSnap m, DeserializedVersion a) => m a
 requireBody' = runIdentity <$> requireBody
 
+-- | The default json serialization for `()` is `[]` which is not an
+--   obvious response from an API that is returning an empty response.
+--   So returning `()` from an api function is disallowed and the user
+--   can instead use a newtype which chooses an explicit serialization.
+--   `EmptyObject` and `EmptyArray` are provided.
+type family APIable a where
+  APIable () = False
+  APIable a = True
+
+newtype EmptyObject = EmptyObject ()
+
+instance ToJSON EmptyObject where
+  toJSON _ = object []
+
+newtype EmptyArray = EmptyArray ()
+
+instance ToJSON EmptyArray where
+  toJSON _ = Array []
+
 -- | API layer
-runAPI :: (MonadSnap m, SerializedVersion a, CatMaybes f, FunctorToJSON f) => m (f a) -> m ()
+runAPI :: (MonadSnap m, SerializedVersion a
+          ,CatMaybes f, FunctorToJSON f
+          ,APIable a ~ True) => m (f a) -> m ()
 runAPI handler = do
   (serializer, mediaType) <- getSerializerFromHeader
   fa <- handler
@@ -76,5 +102,5 @@ runAPI handler = do
   modifyResponse $ setHeader "Content-Type" (renderHeader mediaType)
 
 -- | API Layer for handlers returning a single value
-runAPI' :: (MonadSnap m, SerializedVersion a) => m a -> m ()
+runAPI' :: (MonadSnap m, SerializedVersion a, APIable a ~ True) => m a -> m ()
 runAPI' = runAPI . (Identity <$>)
