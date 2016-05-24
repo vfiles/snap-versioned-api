@@ -52,7 +52,7 @@ parseBodyOfMax :: (DeserializedVersion a, MonadSnap m, TraversableFromJSON t)
 parseBodyOfMax n = do
   deserializer <- getDeserializerFromHeader
   val <- decode <$> readRequestBody n
-  return (val >>= deserialize deserializer)
+  return (val >>= runDeserializer deserializer)
 
 -- | Attempts to parse a JSON structure from a request body, short circuits
 --   with a malformed request body error if the body is empty or can not be
@@ -93,7 +93,7 @@ runAPI :: (MonadSnap m, SerializedVersion a
 runAPI handler = do
   (serializer, mediaType) <- getSerializerFromHeader
   fa <- handler
-  let mValue = serialize serializer fa
+  let mValue = runSerializer serializer fa
   case mValue of
     Nothing -> do
       modifyResponse $ setResponseStatus 406 "Version requested too old!"

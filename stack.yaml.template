@@ -4,5 +4,5 @@ packages:
 - ./
 - location:
     git: https://github.com/vfiles/aeson-versioned
-    commit: 736ae50a6d9b455c8fc62fb6038b1350fe73601f
+    commit: 0c6a43f555f2d6bf0a09b992d9adb343e00ecf92
   extra-dep: true

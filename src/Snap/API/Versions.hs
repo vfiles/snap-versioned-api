@@ -74,7 +74,7 @@ getContentType mContentTypeHeader defaultMedia = case mContentTypeHeader of
 --    in case the handler fails later on).
 getSerializerFromHeader :: (MonadSnap m, SerializedVersion a) => m (Serializer a, MediaType)
 getSerializerFromHeader = do
-  let serializers' = serializers
+  let serializers' = getSerializers
       defaultVersion = fst $ M.findMax serializers'
   mAcceptHeader <- getHeader "Accept" <$> getRequest
   media <- getAcceptMedia mAcceptHeader $ "application" // "json" /: ("version", BS.pack $ show defaultVersion)
@@ -93,7 +93,7 @@ getSerializerFromHeader = do
 getDeserializerFromHeader :: (MonadSnap m, DeserializedVersion a) =>
                              m (Deserializer a)
 getDeserializerFromHeader = do
-  let deserializers' = deserializers
+  let deserializers' = getDeserializers
       defaultVersion = fst $ M.findMax deserializers'
   mContentTypeHeader <- getHeader "Content-Type" <$> getRequest
   media <-  getContentType mContentTypeHeader $ "application" // "json" /: ("version", BS.pack $ show defaultVersion)
