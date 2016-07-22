@@ -31,6 +31,7 @@ import Data.Aeson.Versions
 import Data.Functor.Identity
 
 import Data.Int
+import Data.Word
 
 import Network.HTTP.Media
 
@@ -47,7 +48,7 @@ parseBody' = (runIdentity <$>) <$> parseBody
 -- | Attempts to parse a JSON structure from a request body
 --   Enforcing a maximum given request size (in bytes)
 parseBodyOfMax :: (DeserializedVersion a, MonadSnap m, TraversableFromJSON t)
-               => Int64
+               => Word64
                -> m (Maybe (t a))
 parseBodyOfMax n = do
   deserializer <- getDeserializerFromHeader
