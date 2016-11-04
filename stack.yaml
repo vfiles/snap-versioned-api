@@ -1,4 +1,4 @@
-resolver: nightly-2016-03-23
+resolver: lts-7.7
 
 packages:
 - ./
@@ -6,30 +6,9 @@ packages:
     git: https://github.com/vfiles/aeson-versioned
     commit: 3a05ffafef26cf96e627fd64e247726307f9263a
   extra-dep: true
-- location:
-    git: https://github.com/snapframework/snap-core.git
-    commit: 3f49a1662cad466861b5ec4b1e88812328d26b1b
-  extra-dep: true
-- location:
-    git: https://github.com/snapframework/snap-server.git
-    commit: 7a5c389046e071bafe7d196378c678ced0ab985f
-  extra-dep: true
-- location:
-    git: https://github.com/snapframework/heist.git
-    commit: 9cf8d2ad56295dade398a1c28331cf54326c7a8b
-  extra-dep: true
-- location:
-    git: https://github.com/snapframework/snap.git
-    commit: 43cf62cba229c08619f16c84d367a6c54a30d8ca
-  extra-dep: true
-- location:
-    git: https://github.com/snapframework/snap-loader-static.git
-    commit: bcb720ce0b348371dc29f03d34547aa32f5aa9e4
-  extra-dep: true
-- location:
-    git: https://github.com/snapframework/io-streams-haproxy.git
-    commit: ee84473f6fe3a6049a40ea4156277efcfde37603
-  extra-dep: true
 
 extra-deps:
 - clock-0.7.2
+- snap-1.0.0.1
+- heist-1.0.1.0
+- map-syntax-0.2.0.1
